@@ -16,7 +16,7 @@ class DogList(APIView):
         serialiser = DogSerializer(Dogs, many=True)
         return Response(serialiser.data, status=status.HTTP_200_OK)
 
-    def put(self, request: Request, format=None) -> Response:
+    def post(self, request: Request, format=None) -> Response:
         serializer = DogSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
