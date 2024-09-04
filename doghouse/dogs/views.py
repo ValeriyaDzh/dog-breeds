@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http import Http404
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework import status
+from rest_framework import status, viewsets
 
 from .models import Dog, Breed
 from .serializers import DogSerializer, BreedSerializer
@@ -12,8 +13,8 @@ from .serializers import DogSerializer, BreedSerializer
 class DogList(APIView):
 
     def get(self, request: Request, format=None) -> Response:
-        Dogs = Dog.objects.all()
-        serialiser = DogSerializer(Dogs, many=True)
+        dogs = Dog.objects.all()
+        serialiser = DogSerializer(dogs, many=True)
         return Response(serialiser.data, status=status.HTTP_200_OK)
 
     def post(self, request: Request, format=None) -> Response:
@@ -53,3 +54,9 @@ class DogDetail(APIView):
         dog = self._get_dog(pk)
         dog.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BreedList(viewsets.ModelViewSet):
+
+    queryset = Breed.objects.all()
+    serializer_class = BreedSerializer
