@@ -39,7 +39,7 @@ class DogDetail(APIView):
     def get(self, request: Request, pk: int, format=None) -> Response:
         dog = self._get_dog(pk)
         serializer = DogSerializer(dog)
-        return Response(serializer, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request: Request, pk: int, format=None) -> Response:
         dog = self._get_dog(pk)
@@ -75,16 +75,28 @@ class BreedList(ViewSet):
 
 class BreedDetail(ViewSet):
 
-    serializer_class = BreedSerializer
+    def _get_breed(self, pk: int) -> Breed:
+        try:
+            return Breed.objects.get(pk=pk)
 
-    # def _get_breed(self, pk: int) -> Breed:
-    #     try:
-    #         return Breed.objects.get(pk=pk)
+        except Breed.DoesNotExist:
+            raise Http404
 
-    #     except Breed.DoesNotExist:
-    #         raise Http404
+    def retrieve(self, request: Request, pk: int) -> Response:
+        breeds = self._get_breed(pk)
+        serializer = BreedSerializer(breeds)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # def retrieve(self, request: Request, pk: int) -> Response:
-    #     breed = self._get_breed(pk)
-    #     serializer = self.get_serializer(breed)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    def update(self, request: Request, pk: int) -> Response:
+        breed = self._get_breed(pk)
+        serializer = BreedSerializer(breed, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request: Request, pk: int) -> Response:
+        Breed = self._get_breed(pk)
+        Breed.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
