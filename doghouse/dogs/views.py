@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http import Http404
-from rest_framework.decorators import action
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework import status, viewsets
+from rest_framework import status
 
 from .models import Dog, Breed
 from .serializers import DogSerializer, BreedSerializer
@@ -56,7 +56,35 @@ class DogDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BreedList(viewsets.ModelViewSet):
+class BreedList(ViewSet):
 
-    queryset = Breed.objects.all()
+    def list(self, request: Request, format=None) -> Response:
+        breeds = Breed.objects.all()
+        serialiser = BreedSerializer(breeds, many=True)
+        return Response(serialiser.data, status=status.HTTP_200_OK)
+
+    def create(self, request: Request, format=None) -> Response:
+        serializer = BreedSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BreedDetail(ViewSet):
+
     serializer_class = BreedSerializer
+
+    # def _get_breed(self, pk: int) -> Breed:
+    #     try:
+    #         return Breed.objects.get(pk=pk)
+
+    #     except Breed.DoesNotExist:
+    #         raise Http404
+
+    # def retrieve(self, request: Request, pk: int) -> Response:
+    #     breed = self._get_breed(pk)
+    #     serializer = self.get_serializer(breed)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
