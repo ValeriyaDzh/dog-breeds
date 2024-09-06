@@ -12,12 +12,12 @@ from .serializers import DogSerializer, BreedSerializer
 
 class DogList(APIView):
 
-    def get(self, request: Request, format=None) -> Response:
+    def get(self, request: Request) -> Response:
         dogs = Dog.objects.all()
         serialiser = DogSerializer(dogs, many=True)
         return Response(serialiser.data, status=status.HTTP_200_OK)
 
-    def post(self, request: Request, format=None) -> Response:
+    def post(self, request: Request) -> Response:
         serializer = DogSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -36,12 +36,12 @@ class DogDetail(APIView):
         except Dog.DoesNotExist:
             raise Http404
 
-    def get(self, request: Request, pk: int, format=None) -> Response:
+    def get(self, request: Request, pk: int) -> Response:
         dog = self._get_dog(pk)
         serializer = DogSerializer(dog)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request: Request, pk: int, format=None) -> Response:
+    def put(self, request: Request, pk: int) -> Response:
         dog = self._get_dog(pk)
         serializer = DogSerializer(dog, data=request.data)
         if serializer.is_valid():
@@ -50,7 +50,7 @@ class DogDetail(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request: Request, pk: int, format=None) -> Response:
+    def delete(self, request: Request, pk: int) -> Response:
         dog = self._get_dog(pk)
         dog.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -58,12 +58,12 @@ class DogDetail(APIView):
 
 class BreedList(ViewSet):
 
-    def list(self, request: Request, format=None) -> Response:
+    def list(self, request: Request) -> Response:
         breeds = Breed.objects.all()
         serialiser = BreedSerializer(breeds, many=True)
         return Response(serialiser.data, status=status.HTTP_200_OK)
 
-    def create(self, request: Request, format=None) -> Response:
+    def create(self, request: Request) -> Response:
         serializer = BreedSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
